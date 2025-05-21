@@ -58,5 +58,12 @@ with gr.Blocks() as demo:
         btn3 = gr.Button("Vorhersagen")
         preds = gr.File(label="Ergebnis-CSV")
         btn3.click(infer, [model, test], preds)
+# ---------- Start ----------
+if __name__ == "__main__":
+    demo.launch(
+        server_name="0.0.0.0",                  # ← Space-Health-Check erreicht die App
+        server_port=int(os.getenv("PORT", 7860)),
+        show_error=True                         # optional: Exceptions im UI anzeigen
+    )
 
 demo.launch()
