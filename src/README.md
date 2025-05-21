@@ -1,55 +1,32 @@
-# 2024InteractiveMetrics
+# SLEDA Interactive Metrics
 
-SLEDA is a three-level framework for evaluating dialogue quality and dialogue annotations for English Second Language (ESL)conversation dialogue.
+SLEDA is a three-level framework for evaluating English Second Language (ESL) conversation dialogues. This repository contains the original notebooks, supporting data and a small Docker setup for running the tool in a HuggingFace Space.
 
-It was created for the SLEDA project:
+## Repository layout
 
-For more details, please read: Interaction Matters: A Three-Level Multi-class English Second Language Conversation Dialogue through Interactive Based Metrics
+- `SLDEA Data/` – example ESL dialogues in XLSX format.
+- `feature_label.csv` – features extracted from the annotated datasets.
+- `2024ACLESLMainCodes_Results/` – sample results from the accompanying paper.
+- `dialogue_pred.ipynb` and `ESL_AddedExperinments.ipynb` – main notebooks for preprocessing, training and evaluation.
+- `space/` – Dockerfile, requirements and `app.py` used when deploying to HuggingFace Spaces.
 
-Dialogues labelled for three levels (from the above paper) can be found in SLDEA data.
+## Dataset
 
-Features exacted from the annotated datasets can be found in feature_label.csv. 
+Only a small sample of the full SLDEA dataset is provided here. For complete access contact `rena.gao@unimelb.edu.au`. Place the files under `src/SLDEA Data/` so that the notebooks can locate them.
 
-Python script data/explore_data.py provides an example of interfacing with the data.
+## Running the notebooks
 
+The notebooks in `src/` contain the preprocessing steps and experiments described in the paper. You can run them directly in Jupyter or execute them from the command line with [Papermill](https://papermill.readthedocs.io/):
 
-### Dataset
+```bash
+papermill dialogue_pred.ipynb dialogue_pred_out.ipynb
+```
 
-- `dataset/SLDEA` - Sample Dataset: Full Access Contact Via: rena.gao@unimelb.edu.au
-- Dataset Viewing
-- To run the notebooks for examining the datasets, please follow the procedures listed below:
+The Python scripts `dialogue_pred.py` and `ESL_AddedExperinments.py` are exports of these notebooks and can be invoked directly once the required packages are installed.
 
-- Download the dataset from the folder.
-- Put the data into dataset/SLDEA and extract sample.zip.
-- To view the data, one may use preprocessing.ipynb for viewing the examples.
+## Local Docker build
 
-### Notebooks
-
-- `notebooks/a.ipynb` - Notebook for preprocessing
-- `notebooks/b.ipynb` - Notebook for main experiments
-- `notebooks/c.ipync` - Notebook for added experiments 
-
-### Figures
-
-- `figures/` - Contains all figures used for this project
-
-### Utils
-
-- `utils/` - Contains all utility functions for this project
-
-### Reports
-
-- `reports/` - Generated analysis for Arvix paper
-
-### Running in a HuggingFace Space
-
-The repository already contains a minimal `space/` folder with a `Dockerfile`,
-`requirements.txt` and `app.py`. These files allow the project to be deployed as
-an interactive Space on Hugging Face. The Docker image installs the Python
-dependencies, converts all Jupyter notebooks inside `src/` to Python scripts and
-starts the Gradio interface defined in `space/app.py` on port `7860`.
-
-To test the Space locally you can build and run the Docker image:
+A minimal Docker setup is provided for testing the application locally and for deployment to HuggingFace Spaces. Build and run the image with:
 
 ```bash
 cd space
@@ -57,8 +34,18 @@ docker build -t sleda-space .
 docker run -p 7860:7860 sleda-space
 ```
 
-This will launch the same application that Hugging Face uses when creating a
-Space from this repository.
+This exposes a Gradio interface on http://localhost:7860.
 
+## Deploying to HuggingFace Spaces
 
+Create a new **Docker** Space on HuggingFace and link it to this repository. The Space builder uses `space/Dockerfile` to install the dependencies, convert the notebooks to scripts and start `space/app.py`. Once built, the web interface offers three tabs:
 
+1. **Pre-processing** – run `dialogue_pred.ipynb` on an uploaded CSV file.
+2. **Training** – execute `ESL_AddedExperinments.ipynb`.
+3. **Application** – apply a trained model to new data via `dialogue_pred.py`.
+
+The container exposes port `7860`, which Spaces automatically forwards.
+
+## License
+
+This project is released under the MIT License.
