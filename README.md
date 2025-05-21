@@ -1,3 +1,14 @@
+---
+title: SLEDA Interactive Metrics
+emoji: "\U0001F4CA"
+colorFrom: green
+colorTo: indigo
+sdk: docker
+sdk_version: "0.1"
+app_file: app.py
+pinned: false
+---
+
 # SLEDA Interactive Metrics
 
 SLEDA is a three-level framework for evaluating English Second Language (ESL) conversation dialogues. This repository contains the original notebooks, supporting data and a small Docker setup for running the tool in a HuggingFace Space.
