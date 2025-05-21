@@ -1,7 +1,0 @@
-pandas
-numpy
-scikit-learn
-torch          # falls in den Notebooks genutzt
-gradio>=4
-papermill      # führt Notebooks automatisch aus
-jupyter        # nötig für die Umwandlung ipynb → py
