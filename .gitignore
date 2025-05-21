@@ -1,0 +1,5 @@
+*.ipynb
+src/SLDEA Data/
+*.csv
+*.png
+__pycache__/
