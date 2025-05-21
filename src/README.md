@@ -41,5 +41,24 @@ Python script data/explore_data.py provides an example of interfacing with the d
 
 - `reports/` - Generated analysis for Arvix paper
 
+### Running in a HuggingFace Space
+
+The repository already contains a minimal `space/` folder with a `Dockerfile`,
+`requirements.txt` and `app.py`. These files allow the project to be deployed as
+an interactive Space on Hugging Face. The Docker image installs the Python
+dependencies, converts all Jupyter notebooks inside `src/` to Python scripts and
+starts the Gradio interface defined in `space/app.py` on port `7860`.
+
+To test the Space locally you can build and run the Docker image:
+
+```bash
+cd space
+docker build -t sleda-space .
+docker run -p 7860:7860 sleda-space
+```
+
+This will launch the same application that Hugging Face uses when creating a
+Space from this repository.
+
 
 
