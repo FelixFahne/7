@@ -1,6 +1,6 @@
 import gradio as gr, subprocess, pathlib, shutil, uuid, os
 
-SRC = pathlib.Path(__file__).parent.parent / "src"
+SRC = pathlib.Path(__file__).parent / "src"
 TMP = pathlib.Path("/tmp/space")         # temporäre Arbeits­verzeichnisse
 TMP.mkdir(parents=True, exist_ok=True)
 
@@ -31,7 +31,7 @@ def infer(model_pkl, test_csv):
     # Beispiel: führe ein Python-Script aus dem Originalrepo aus
     output_csv = TMP / f"preds_{uuid.uuid4()}.csv"
     subprocess.check_call(
-        ["python", SRC / "scripts" / "dialogue_pred.py",
+        ["python", SRC / "dialogue_pred.py",
          "--model", model_pkl.name,
          "--test", test_csv.name,
          "--out", output_csv],

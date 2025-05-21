@@ -8,7 +8,7 @@ SLEDA is a three-level framework for evaluating English Second Language (ESL) co
 - `feature_label.csv` – features extracted from the annotated datasets.
 - `2024ACLESLMainCodes_Results/` – sample results from the accompanying paper.
 - `dialogue_pred.ipynb` and `ESL_AddedExperinments.ipynb` – main notebooks for preprocessing, training and evaluation.
-- `space/` – Dockerfile, requirements and `app.py` used when deploying to HuggingFace Spaces.
+- `Dockerfile`, `requirements.txt` and `app.py` – files used when deploying to HuggingFace Spaces.
 
 ## Dataset
 
@@ -29,7 +29,6 @@ The Python scripts `dialogue_pred.py` and `ESL_AddedExperinments.py` are exports
 A minimal Docker setup is provided for testing the application locally and for deployment to HuggingFace Spaces. Build and run the image with:
 
 ```bash
-cd space
 docker build -t sleda-space .
 docker run -p 7860:7860 sleda-space
 ```
@@ -38,7 +37,7 @@ This exposes a Gradio interface on http://localhost:7860.
 
 ## Deploying to HuggingFace Spaces
 
-Create a new **Docker** Space on HuggingFace and link it to this repository. The Space builder uses `space/Dockerfile` to install the dependencies, convert the notebooks to scripts and start `space/app.py`. Once built, the web interface offers three tabs:
+Create a new **Docker** Space on HuggingFace and link it to this repository. The Space builder uses the repository root `Dockerfile` to install the dependencies, convert the notebooks to scripts and start `app.py`. Once built, the web interface offers three tabs:
 
 1. **Pre-processing** – run `dialogue_pred.ipynb` on an uploaded CSV file.
 2. **Training** – execute `ESL_AddedExperinments.ipynb`.
