@@ -14,12 +14,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . /app
 
 # 5) Notebooks beim Build in Skripte konvertieren (für späteren Aufruf)
-RUN python - << 'PY'
-import pathlib, subprocess, sys, os
-src = pathlib.Path("src")
-for nb in src.rglob("*.ipynb"):
-    subprocess.check_call(["jupyter", "nbconvert", "--to", "script", nb])
-PY
+RUN python -c "import pathlib, subprocess; [subprocess.check_call(['jupyter','nbconvert','--to','script', str(nb)]) for nb in pathlib.Path('src').rglob('*.ipynb')]"
 
 # 6) Standard-Port für Gradio
 ENV PORT 7860
