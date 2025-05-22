@@ -66,7 +66,8 @@ Create a new **Docker** Space on HuggingFace and link it to this repository. The
 
 1. **Pre-processing** – upload one or more Excel/CSV files and execute
    `preprocessing.py` (or `notebooks/a.ipynb`) on the converted data.
-2. **Training** – run `dialogue_pred.ipynb` on the processed files.
+2. **Training** – run `dialogue_pred.ipynb` on the processed files. The tab
+   now produces a downloadable `model.pkl` containing the trained model.
 3. **Application** – upload a model and one or more test files to generate
    predictions via `dialogue_pred.py`.
 4. **Extra Experiments** *(optional)* – explore additional analysis in

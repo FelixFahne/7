@@ -357,6 +357,17 @@ true_dict_df.to_csv('./task-3-真实结果.csv',encoding='utf_8_sig')
 result_dict_df=pd.DataFrame(result_dict,index=['mae','mse','mape','r2'])
 result_dict_df.to_csv('./Task-3-result_df.csv',encoding='utf_8_sig')
 
+# Save final model for use in the web interface
+try:
+    import joblib, pathlib, os
+    TMP = pathlib.Path(os.getenv("SLDEA_WORKDIR", "/tmp/space"))
+    TMP.mkdir(parents=True, exist_ok=True)
+    model_file = TMP / "model.pkl"
+    joblib.dump(model, model_file)
+    print(f"Saved model to {model_file}")
+except Exception as e:
+    print(f"Unable to save model: {e}")
+
 
 # In[ ]:
 
