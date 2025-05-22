@@ -62,7 +62,7 @@ def train(train_files):
         shutil.copy(f.name, uploads_dir / pathlib.Path(f.name).name)
 
     prepare_data_structure(uploads_dir, force=True)
-    ipynb = SRC / "ESL_AddedExperinments.ipynb"
+    ipynb = SRC / "dialogue_pred.ipynb"
     result = _run_notebook(ipynb, TMP, cwd=TMP)
     return gr.File(str(result))
 
