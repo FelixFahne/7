@@ -47,13 +47,6 @@ def get_new_labels(counts_df,new_column='P-V',old_column=['topic extension with 
 
 def get_result(test_y,test_pred):
     acc=metrics.accuracy_score(test_y,test_pred)
-    pre=metrics.precision_score(test_y,test_pred)
-    rec=metrics.recall_score(test_y,test_pred)
-    f1s=metrics.f1_score(test_y,test_pred)
-    return [acc,pre,rec,f1s]
-
-def get_result(test_y,test_pred):
-    acc=metrics.accuracy_score(test_y,test_pred)
     pre=metrics.precision_score(test_y,test_pred,average='weighted')
     rec=metrics.recall_score(test_y,test_pred,average='weighted')
     f1s=metrics.f1_score(test_y,test_pred,average='weighted')
@@ -91,7 +84,6 @@ score_dict={'topic extension with clear new context':[5,'Y1'],
             'overall tone choice: very informal':[5,'Y2'],
            'overall tone choice: quite informal, but some expressions are still formal':[4,'Y2'],
            'overall tone choice: quite formal and some expressions are not that formal':[3,'Y2'],
-            'overall tone choice: quite formal and some expressions are not that formal':[2,'Y2'],
             'overall tone choice: very formal':[1,'Y2'],
 
             'Co1':[5,'Y3'],
@@ -107,7 +99,7 @@ score_dict={'topic extension with clear new context':[5,'Y1'],
             'Cc5':[1,'Y4'],
 
             'conversation opening':[3,'Y3'],
-            'onversation closing':[3,'Y4']
+            'conversation closing':[3,'Y4']
            }
 
 
@@ -480,17 +472,6 @@ task_2_train_true_pred={}
 
 
 # In[23]:
-
-
-def get_result(test_y,test_pred):
-    acc=metrics.accuracy_score(test_y,test_pred)
-    pre=metrics.precision_score(test_y,test_pred,average='weighted')
-    rec=metrics.recall_score(test_y,test_pred,average='weighted')
-    f1s=metrics.f1_score(test_y,test_pred,average='weighted')
-    return [acc,pre,rec,f1s]
-
-
-# In[47]:
 
 
 model_name='Logit'
