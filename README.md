@@ -19,9 +19,8 @@ SLEDA is a three-level framework for evaluating English Second Language (ESL) co
 - `feature_label.csv` – features extracted from the annotated datasets.
 - `2024ACLESLMainCodes_Results/` – sample results from the accompanying paper.
 - `dialogue_pred.ipynb` and `ESL_AddedExperinments.ipynb` – main notebooks for preprocessing, training and evaluation.
-- `prepare_data.py` – script that converts the Excel files under `SLDEA Data/` to the
-  CSV structure expected by the notebooks.
-  It is executed automatically when starting the app.
+- `src/preprocessing.py` – converts uploaded Excel/CSV files to the CSV structure
+  expected by the notebooks and produces `feature_label.csv`.
 
 ## Dataset
 
@@ -29,18 +28,18 @@ Only a small sample of the full SLDEA dataset is provided here. For complete acc
 
 ## Working directory
 
-Both `app.py` and `prepare_data.py` write their intermediate results and the generated annotation CSV files to a directory controlled by the `SLDEA_WORKDIR` environment variable. If the variable is not set, `/tmp/space` is used by default. When running the web interface you may upload any number of Excel/CSV files which are placed in this directory automatically. If you run `prepare_data.py` manually, make sure at least five Excel files reside in `src/SLDEA Data/` so that the helper can build `annotations(1).csv`–`annotations(5).csv`.
-`preprocessing.py` expects these `annotations` files to live in the directory referenced by `SLDEA_WORKDIR`.
+Both `app.py` and `src/preprocessing.py` write their intermediate results and the generated annotation CSV files to a directory controlled by the `SLDEA_WORKDIR` environment variable. If the variable is not set, `/tmp/space` is used by default. When running the web interface you may upload any number of Excel/CSV files which are placed in this directory automatically. If you run `src/preprocessing.py` manually, make sure at least five Excel files reside in `src/SLDEA Data/` so that the helper can build `annotations(1).csv`–`annotations(5).csv`.
+`src/preprocessing.py` expects these `annotations` files to live in the directory referenced by `SLDEA_WORKDIR`.
 
 ```bash
-python prepare_data.py
+python src/preprocessing.py
 ```
 
 Running the command again is useful if you add more Excel files later or want to regenerate the CSVs in a different location by setting `SLDEA_WORKDIR`.
 
 ## Running the notebooks
 
-The notebooks in `src/` contain the preprocessing steps and experiments described in the paper. They require CSV files named `annotations(1).csv` to `annotations(5).csv` and a folder `data_csv_sample/`. The helper script `prepare_data.py` generates these files from the Excel sheets under `SLDEA Data/` if they are missing.
+The notebooks in `src/` contain the preprocessing steps and experiments described in the paper. They require CSV files named `annotations(1).csv` to `annotations(5).csv` and a folder `data_csv_sample/`. The script `src/preprocessing.py` creates these files from the Excel sheets under `SLDEA Data/` if they are missing.
 
 You can run the notebooks directly in Jupyter or execute them from the command line with [Papermill](https://papermill.readthedocs.io/):
 
@@ -56,8 +55,7 @@ Running the pipeline manually might look as follows:
 
 ```bash
 export SLDEA_WORKDIR=$HOME/sleda_workdir
-python prepare_data.py             # create annotations(1).csv–annotations(5).csv
-python src/preprocessing.py        # produces feature_label.csv
+python src/preprocessing.py        # creates annotations(1).csv–annotations(5).csv and feature_label.csv
 python src/dialogue_pred.py        # trains and saves model.pkl
 python src/dialogue_pred.py --model model.pkl --test test.csv --out preds.csv
 python src/ESL_AddedExperinments.py experiments.csv  # optional
