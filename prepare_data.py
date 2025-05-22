@@ -2,6 +2,12 @@ import os
 import shutil
 from pathlib import Path
 import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.metrics import confusion_matrix, roc_curve, auc
+from sklearn.metrics import precision_recall_curve, average_precision_score
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
 
 SRC = Path(__file__).parent / "src"
 DATA_DIR = SRC / "SLDEA Data"
@@ -51,12 +57,98 @@ def _populate_sample_dir(data_dir: Path):
         (SAMPLE_DIR / f"{xlsx.stem}.csv").write_text(df.to_csv(index=False))
 
 
+def _load_converted_csv() -> pd.DataFrame:
+    """Return a DataFrame concatenating all annotation CSVs."""
+    frames = []
+    for p in ANNOTATIONS:
+        if p.exists():
+            frames.append(pd.read_csv(p))
+    if frames:
+        return pd.concat(frames, ignore_index=True)
+    return pd.DataFrame()
+
+
+def assign_tone(row: pd.Series) -> str:
+    """Assign a conversational tone based on label counts."""
+    if (
+        row.get("backchannels", 0) > 0
+        or row.get("code-switching for communicative purposes", 0) > 0
+        or row.get("collaborative finishes", 0) > 0
+    ):
+        return "Informal"
+    if (
+        row.get("subordinate clauses", 0) > 0
+        or row.get("impersonal subject + non-factive verb + NP", 0) > 0
+    ):
+        return "Formal"
+    return "Neutral"
+
+
+def _perform_analysis(df: pd.DataFrame) -> None:
+    """Replicate analysis steps from the original tool if columns are present."""
+    if df.empty:
+        return
+
+    summary = (
+        df.groupby("dialogue_segment").sum(numeric_only=True)
+        if "dialogue_segment" in df.columns
+        else pd.DataFrame()
+    )
+
+    if not summary.empty:
+        summary["Tone"] = summary.apply(assign_tone, axis=1)
+        tone_assignments = summary["Tone"].value_counts()
+
+        plt.figure(figsize=(8, 5))
+        tone_assignments.plot(kind="bar")
+        plt.title("Distribution of Assigned Tones Across Dialogue Segments")
+        plt.xlabel("Tone")
+        plt.ylabel("Number of Segments")
+        plt.xticks(rotation=0)
+        fig_path = WORKDIR / "tone_distribution.png"
+        plt.savefig(fig_path)
+        plt.close()
+
+    req_cols = {
+        "dialogue_id",
+        "token_label_type1",
+        "token_label_type2",
+        "OverallToneChoice",
+        "TopicExtension",
+    }
+    if req_cols.issubset(df.columns):
+        features = df.groupby("dialogue_id").agg(
+            {
+                "token_label_type1": "sum",
+                "token_label_type2": "sum",
+            }
+        )
+
+        dialogue_labels = df.groupby("dialogue_id").agg(
+            {
+                "OverallToneChoice": "first",
+                "TopicExtension": "first",
+            }
+        )
+
+        data_for_regression = features.join(dialogue_labels)
+        X = data_for_regression.drop(["OverallToneChoice", "TopicExtension"], axis=1)
+        y = data_for_regression[["OverallToneChoice", "TopicExtension"]]
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, y, test_size=0.2, random_state=42
+        )
+        LinearRegression().fit(X_train, y_train["OverallToneChoice"])
+        LinearRegression().fit(X_train, y_train["TopicExtension"])
+
+
 def prepare_data_structure(data_dir: Path = DATA_DIR, force: bool = False):
     """Ensure the workspace contains the CSVs required by the notebooks."""
     if not force and all(p.exists() for p in ANNOTATIONS) and SAMPLE_DIR.exists():
         return
     _convert_excel_to_csv(data_dir)
     _populate_sample_dir(data_dir)
+    df = _load_converted_csv()
+    _perform_analysis(df)
 
 
 if __name__ == "__main__":
