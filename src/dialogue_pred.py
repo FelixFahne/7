@@ -64,7 +64,7 @@ data_2=pd.read_csv('./annotations(2).csv')
 data_3=pd.read_csv('./annotations(3).csv')
 data_4=pd.read_csv('./annotations(4).csv')
 data_5=pd.read_csv('./annotations(5).csv')
-data=data_1.append(data_2).append(data_3).append(data_4).append(data_5)
+data=pd.concat([data_1, data_2, data_3, data_4, data_5], ignore_index=True)
 data['LabelLevel']=data['LabelLevel'].apply(transform)
 data.index=range(len(data))
 
