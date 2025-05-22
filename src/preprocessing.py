@@ -29,15 +29,25 @@ summary_label_counts_by_segment = (
 
 
 def assign_tone(row):
-    if row['backchannels'] > 0 or row['code-switching for communicative purposes'] > 0 or row['collaborative finishes'] > 0:
-        return 'Informal'
-    elif row['subordinate clauses'] > 0 or row['impersonal subject + non-factive verb + NP'] > 0:
-        return 'Formal'
-    else:
-        return 'Neutral'  # Default to Neutral if none of the criteria match
+    """Return a tone label based on available label counts."""
+    if (
+        row.get("backchannels", 0) > 0
+        or row.get("code-switching for communicative purposes", 0) > 0
+        or row.get("collaborative finishes", 0) > 0
+    ):
+        return "Informal"
+    if (
+        row.get("subordinate clauses", 0) > 0
+        or row.get("impersonal subject + non-factive verb + NP", 0) > 0
+    ):
+        return "Formal"
+    return "Neutral"
 
-# Apply the function to each segment
-summary_label_counts_by_segment['Tone'] = summary_label_counts_by_segment.apply(assign_tone, axis=1)
+# Apply the function only if groupby was successful
+if not summary_label_counts_by_segment.empty:
+    summary_label_counts_by_segment["Tone"] = summary_label_counts_by_segment.apply(
+        assign_tone, axis=1
+    )
 
 # Overview of tone assignments
 tone_assignments = summary_label_counts_by_segment['Tone'].value_counts()
