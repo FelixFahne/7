@@ -54,7 +54,8 @@ This exposes a Gradio interface on http://localhost:7860.
 
 Create a new **Docker** Space on HuggingFace and link it to this repository. The Space builder uses `Dockerfile` in the repository root to install the dependencies, convert the notebooks to scripts and start `app.py`. Once built, the web interface offers three tabs:
 
-1. **Pre-processing** – run `dialogue_pred.ipynb` on an uploaded CSV file.
+1. **Pre-processing** – execute `dialogue_pred.ipynb` on the prepared sample
+   CSV data. The upload field is ignored.
 2. **Training** – execute `ESL_AddedExperinments.ipynb`.
 3. **Application** – apply a trained model to new data via `dialogue_pred.py`.
 
