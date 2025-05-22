@@ -1,6 +1,11 @@
 import gradio as gr, subprocess, pathlib, shutil, uuid, os
 from prepare_data import prepare_data_structure
 
+# Ensure Matplotlib writes its config to a writable directory. This is useful in
+# read-only environments such as Docker containers.
+os.environ.setdefault("MPLCONFIGDIR", "/tmp/matplotlib")
+pathlib.Path("/tmp/matplotlib").mkdir(parents=True, exist_ok=True)
+
 SRC = pathlib.Path(__file__).parent / "src"
 # Directory used for intermediate results and generated CSVs. It defaults to
 # ``/tmp/space`` but can be overridden via the ``SLDEA_WORKDIR`` environment
