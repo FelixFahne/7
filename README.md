@@ -30,6 +30,7 @@ Only a small sample of the full SLDEA dataset is provided here. For complete acc
 ## Working directory
 
 Both `app.py` and `prepare_data.py` write their intermediate results and the generated annotation CSV files to a directory controlled by the `SLDEA_WORKDIR` environment variable. If the variable is not set, `/tmp/space` is used by default. When running the web interface you may upload any number of Excel/CSV files which are placed in this directory automatically. If you run `prepare_data.py` manually, make sure at least five Excel files reside in `src/SLDEA Data/` so that the helper can build `annotations(1).csv`–`annotations(5).csv`.
+`preprocessing.py` expects these `annotations` files to live in the directory referenced by `SLDEA_WORKDIR`.
 
 ```bash
 python prepare_data.py
@@ -48,6 +49,19 @@ papermill dialogue_pred.ipynb dialogue_pred_out.ipynb
 ```
 
 The Python scripts `dialogue_pred.py` and `ESL_AddedExperinments.py` are exports of these notebooks and can be invoked directly once the required packages are installed.
+
+## Command-line example
+
+Running the pipeline manually might look as follows:
+
+```bash
+export SLDEA_WORKDIR=$HOME/sleda_workdir
+python prepare_data.py             # create annotations(1).csv–annotations(5).csv
+python src/preprocessing.py        # produces feature_label.csv
+python src/dialogue_pred.py        # trains and saves model.pkl
+python src/dialogue_pred.py --model model.pkl --test test.csv --out preds.csv
+python src/ESL_AddedExperinments.py experiments.csv  # optional
+```
 
 ## Local Docker build
 
@@ -72,6 +86,16 @@ Create a new **Docker** Space on HuggingFace and link it to this repository. The
    predictions via `dialogue_pred.py`.
 4. **Extra Experiments** *(optional)* – explore additional analysis in
    `ESL_AddedExperinments.ipynb`.
+=======
+   `preprocessing.py` (or `notebooks/a.ipynb`) on the converted data. The
+   output is `feature_label.csv`.
+2. **Training** – upload `feature_label.csv` and run `dialogue_pred.ipynb` to
+   obtain `model.pkl`.
+3. **Application** – upload `model.pkl` together with test CSV/XLSX files to
+   generate `preds_<uuid>.csv` via `dialogue_pred.py`.
+4. **Extra Experiments** *(optional)* – upload an experiments CSV for additional
+   analysis in `ESL_AddedExperinments.ipynb`.
+
 
 The container exposes port `7860`, which Spaces automatically forwards.
 
