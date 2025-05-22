@@ -68,8 +68,9 @@ def train(train_files):
 
     prepare_data_structure(uploads_dir, force=True)
     ipynb = SRC / "dialogue_pred.ipynb"
-    result = _run_notebook(ipynb, TMP, cwd=TMP)
-    return gr.File(str(result))
+    _run_notebook(ipynb, TMP, cwd=TMP)
+    model_file = TMP / "model.pkl"
+    return gr.File(str(model_file))
 
 
 def infer(model_pkl, test_files):

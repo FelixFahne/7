@@ -77,6 +77,14 @@ This exposes a Gradio interface on http://localhost:7860.
 Create a new **Docker** Space on HuggingFace and link it to this repository. The Space builder uses `Dockerfile` in the repository root to install the dependencies, convert the notebooks to scripts and start `app.py`. Once built, the web interface offers three tabs and an optional **Extra Experiments** tab:
 
 1. **Pre-processing** – upload one or more Excel/CSV files and execute
+   `preprocessing.py` (or `notebooks/a.ipynb`) on the converted data.
+2. **Training** – run `dialogue_pred.ipynb` on the processed files. The tab
+   now produces a downloadable `model.pkl` containing the trained model.
+3. **Application** – upload a model and one or more test files to generate
+   predictions via `dialogue_pred.py`.
+4. **Extra Experiments** *(optional)* – explore additional analysis in
+   `ESL_AddedExperinments.ipynb`.
+=======
    `preprocessing.py` (or `notebooks/a.ipynb`) on the converted data. The
    output is `feature_label.csv`.
 2. **Training** – upload `feature_label.csv` and run `dialogue_pred.ipynb` to
@@ -85,6 +93,7 @@ Create a new **Docker** Space on HuggingFace and link it to this repository. The
    generate `preds_<uuid>.csv` via `dialogue_pred.py`.
 4. **Extra Experiments** *(optional)* – upload an experiments CSV for additional
    analysis in `ESL_AddedExperinments.ipynb`.
+
 
 The container exposes port `7860`, which Spaces automatically forwards.
 
