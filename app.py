@@ -1,4 +1,4 @@
-import gradio as gr, subprocess, pathlib, shutil, uuid, os
+import gradio as gr, subprocess, pathlib, shutil, uuid, os, pandas as pd
 from prepare_data import prepare_data_structure
 
 # Ensure Matplotlib writes its config to a writable directory. This is useful in
@@ -42,15 +42,34 @@ def preprocess(upload_files):
     return gr.File(result)
 
 
-def train(processed_csv):
-    prepare_data_structure()
+def train(train_files):
+    uploads_dir = TMP / "train_uploads"
+    if uploads_dir.exists():
+        shutil.rmtree(uploads_dir)
+    uploads_dir.mkdir(parents=True)
+    for f in train_files:
+        shutil.copy(f.name, uploads_dir / pathlib.Path(f.name).name)
+
+    prepare_data_structure(uploads_dir, force=True)
     ipynb = SRC / "ESL_AddedExperinments.ipynb"
     result = _run_notebook(ipynb, TMP, cwd=TMP)
     return gr.File(result)
 
 
-def infer(model_pkl, test_csv):
-    # Beispiel: führe ein Python-Script aus dem Originalrepo aus
+def infer(model_pkl, test_files):
+    """Run predictions on one or more test CSV/XLSX files."""
+    frames = []
+    for f in test_files:
+        path = pathlib.Path(f.name)
+        if path.suffix.lower() == ".xlsx":
+            frames.append(pd.read_excel(f.name))
+        else:
+            frames.append(pd.read_csv(f.name))
+    merged = pd.concat(frames, ignore_index=True)
+
+    merged_csv = TMP / f"test_{uuid.uuid4()}.csv"
+    merged.to_csv(merged_csv, index=False)
+
     output_csv = TMP / f"preds_{uuid.uuid4()}.csv"
     subprocess.check_call(
         [
@@ -59,7 +78,7 @@ def infer(model_pkl, test_csv):
             "--model",
             model_pkl.name,
             "--test",
-            test_csv.name,
+            merged_csv,
             "--out",
             output_csv,
         ],
@@ -77,14 +96,14 @@ with gr.Blocks() as demo:
         btn.click(preprocess, in_files, out_file)
 
     with gr.Tab("Training"):
-        proc = gr.File(label="Vorverarbeitete CSV")
+        train_files = gr.Files(label="Trainingsdaten (Excel/CSV)")
         btn2 = gr.Button("Trainieren")
         model_out = gr.File(label="Trainings-Notebook")
-        btn2.click(train, proc, model_out)
+        btn2.click(train, train_files, model_out)
 
     with gr.Tab("Application"):
         model = gr.File(label="Modell-Datei (.pkl)")
-        test = gr.File(label="Test-CSV")
+        test = gr.Files(label="Test-CSV oder XLSX")
         btn3 = gr.Button("Vorhersagen")
         preds = gr.File(label="Ergebnis-CSV")
         btn3.click(infer, [model, test], preds)

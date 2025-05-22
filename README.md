@@ -66,8 +66,10 @@ Create a new **Docker** Space on HuggingFace and link it to this repository. The
 
 1. **Pre-processing** – upload one or more Excel/CSV files and execute
    `dialogue_pred.ipynb` on the converted data.
-2. **Training** – execute `ESL_AddedExperinments.ipynb`.
-3. **Application** – apply a trained model to new data via `dialogue_pred.py`.
+2. **Training** – upload one or more Excel/CSV files and execute
+   `ESL_AddedExperinments.ipynb` on the converted data.
+3. **Application** – upload a model and one or more test files to generate
+   predictions via `dialogue_pred.py`.
 
 The container exposes port `7860`, which Spaces automatically forwards.
 
