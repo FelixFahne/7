@@ -1,63 +1,142 @@
-import os
-import shutil
-from pathlib import Path
 import pandas as pd
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
+import matplotlib.pyplot as plt 
+from sklearn.metrics import roc_curve, auc
+from sklearn.metrics import precision_recall_curve
+from sklearn.metrics import average_precision_score
 
-SRC = Path(__file__).parent / "src"
-DATA_DIR = SRC / "SLDEA Data"
+# Define your Excel file paths
+excel_files = [
+    '/Users/gaowei/Downloads_annotations(1).xlsx',
+    '/Users/gaowei/Downloads_annotations(2).xlsx',
+    '/Users/gaowei/Downloads_annotations.xlsx'
+]
 
-# Directory used for generated CSV files. On platforms where the repository
-# itself is read-only (e.g. HuggingFace Spaces), we fall back to a writable
-# location under ``/tmp``. The path can be overridden via the ``SLDEA_WORKDIR``
-# environment variable so that the notebooks and scripts can locate their
-# input/output in a consistent place.
-WORKDIR = Path(os.getenv("SLDEA_WORKDIR", "/tmp/space"))
+# Define corresponding CSV file paths
+csv_files = [
+    '/Users/gaowei/Downloads_annotations(1).csv',
+    '/Users/gaowei/Downloads_annotations(2).csv',
+    '/Users/gaowei/Downloads_annotations.csv'
+]
 
-ANNOTATIONS = [WORKDIR / f"annotations({i}).csv" for i in range(1, 6)]
-SAMPLE_DIR = WORKDIR / "data_csv_sample"
+# Loop through each Excel file, read it, and save it as a CSV file
+for excel_path, csv_path in zip(excel_files, csv_files):
+    # Read the Excel file
+    df = pd.read_excel(excel_path)
+    
+    # Save the DataFrame to a CSV file
+    df.to_csv(csv_path, index=False)  # Set index=False to avoid saving the DataFrame index as a separate column
 
-
-def _convert_excel_to_csv(data_dir: Path):
-    """Convert uploaded Excel/CSV files to the 5 ``annotations`` CSV files."""
-    WORKDIR.mkdir(parents=True, exist_ok=True)
-    xlsx_files = sorted(data_dir.glob("*.xlsx"))
-    csv_files = sorted(data_dir.glob("*.csv"))
-    frames = []
-    for p in xlsx_files:
-        frames.append(pd.read_excel(p))
-    for p in csv_files:
-        frames.append(pd.read_csv(p))
-    if not frames:
-        raise FileNotFoundError(f"No .xlsx or .csv files found in {data_dir}")
-
-    part_size = (len(frames) + 4) // 5
-    for idx, ann_path in enumerate(ANNOTATIONS):
-        start = idx * part_size
-        end = start + part_size
-        subset = frames[start:end]
-        if not subset:
-            break
-        df = pd.concat(subset)
-        ann_path.write_text(df.to_csv(index=False))
+print("All files have been converted to CSV format.")
 
 
-def _populate_sample_dir(data_dir: Path):
-    """Copy CSV files (or converted XLSX files) into ``data_csv_sample``."""
-    SAMPLE_DIR.mkdir(parents=True, exist_ok=True)
-    for csv in data_dir.glob("*.csv"):
-        shutil.copy(csv, SAMPLE_DIR / csv.name)
-    for xlsx in data_dir.glob("*.xlsx"):
-        df = pd.read_excel(xlsx)
-        (SAMPLE_DIR / f"{xlsx.stem}.csv").write_text(df.to_csv(index=False))
+def assign_tone(row):
+    if row['backchannels'] > 0 or row['code-switching for communicative purposes'] > 0 or row['collaborative finishes'] > 0:
+        return 'Informal'
+    elif row['subordinate clauses'] > 0 or row['impersonal subject + non-factive verb + NP'] > 0:
+        return 'Formal'
+    else:
+        return 'Neutral'  # Default to Neutral if none of the criteria match
+
+# Apply the function to each segment
+summary_label_counts_by_segment['Tone'] = summary_label_counts_by_segment.apply(assign_tone, axis=1)
+
+# Overview of tone assignments
+tone_assignments = summary_label_counts_by_segment['Tone'].value_counts()
+
+# Visualize the distribution of assigned tones across segments
+plt.figure(figsize=(8, 5))
+tone_assignments.plot(kind='bar')
+plt.title('Distribution of Assigned Tones Across Dialogue Segments')
+plt.xlabel('Tone')
+plt.ylabel('Number of Segments')
+plt.xticks(rotation=0)
+plt.show()
+
+# Now that we have assigned tones, we could explore the relationship between these tones and specific labels
+# This step is illustrative and based on the simplified criteria for tone assignment
+tone_assignments
 
 
-def prepare_data_structure(data_dir: Path = DATA_DIR, force: bool = False):
-    """Ensure the workspace contains the CSVs required by the notebooks."""
-    if not force and all(p.exists() for p in ANNOTATIONS) and SAMPLE_DIR.exists():
-        return
-    _convert_excel_to_csv(data_dir)
-    _populate_sample_dir(data_dir)
+# Assuming `df` is a DataFrame with dialogue identifiers and the constructed dialogue-level labels
+
+# Feature Engineering: Summarize token-level labels into dialogue-level features
+features = df.groupby('dialogue_id').agg({
+    'token_label_type1': 'sum',
+    'token_label_type2': 'sum',
+    # Add more as needed
+})
+
+# Assume `dialogue_labels` is a DataFrame with our dialogue-level labels
+dialogue_labels = df.groupby('dialogue_id').agg({
+    'OverallToneChoice': 'first',  # Assuming a method to assign these labels
+    'TopicExtension': 'first'
+})
+
+# Join features with labels
+data_for_regression = features.join(dialogue_labels)
+
+# Split data into features (X) and labels (y)
+X = data_for_regression.drop(['OverallToneChoice', 'TopicExtension'], axis=1)
+y = data_for_regression[['OverallToneChoice', 'TopicExtension']]
+
+# Regression analysis (simplified)
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+
+# Splitting dataset into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Linear regression model for 'Overall Tone Choice'
+model_tone = LinearRegression().fit(X_train, y_train['OverallToneChoice'])
+
+# Predict and evaluate 'Overall Tone Choice'
+# (Evaluation steps would go here)
+
+# Repeat for 'Topic Extension'
+model_topic = LinearRegression().fit(X_train, y_train['TopicExtension'])
+
+# Predict and evaluate 'Topic Extension'
+# (Evaluation steps would go here)
 
 
-if __name__ == "__main__":
-    prepare_data_structure()
+# Assuming `df` is a DataFrame with dialogue identifiers and the constructed dialogue-level labels
+
+# Feature Engineering: Summarize token-level labels into dialogue-level features
+features = df.groupby('dialogue_id').agg({
+    'token_label_type1': 'sum',
+    'token_label_type2': 'sum',
+    # Add more as needed
+})
+
+# Assume `dialogue_labels` is a DataFrame with our dialogue-level labels
+dialogue_labels = df.groupby('dialogue_id').agg({
+    'OverallToneChoice': 'first',  # Assuming a method to assign these labels
+    'TopicExtension': 'first'
+})
+
+# Join features with labels
+data_for_regression = features.join(dialogue_labels)
+
+# Split data into features (X) and labels (y)
+X = data_for_regression.drop(['OverallToneChoice', 'TopicExtension'], axis=1)
+y = data_for_regression[['OverallToneChoice', 'TopicExtension']]
+
+# Regression analysis (simplified)
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+
+# Splitting dataset into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Linear regression model for 'Overall Tone Choice'
+model_tone = LinearRegression().fit(X_train, y_train['OverallToneChoice'])
+
+# Predict and evaluate 'Overall Tone Choice'
+# (Evaluation steps would go here)
+
+# Repeat for 'Topic Extension'
+model_topic = LinearRegression().fit(X_train, y_train['TopicExtension'])
+
+# Predict and evaluate 'Topic Extension'
