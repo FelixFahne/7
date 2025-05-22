@@ -3,7 +3,7 @@ os.environ.setdefault("MPLCONFIGDIR", "/tmp/matplotlib")
 pathlib.Path("/tmp/matplotlib").mkdir(parents=True, exist_ok=True)
 
 import gradio as gr, subprocess, shutil, uuid, pandas as pd
-from prepare_data import prepare_data_structure
+from src.preprocessing import prepare_data_structure
 
 SRC = pathlib.Path(__file__).parent / "src"
 # Directory used for intermediate results and generated CSVs. It defaults to
