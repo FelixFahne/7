@@ -84,8 +84,17 @@ def assign_tone(row: pd.Series) -> str:
     return "Neutral"
 
 
-def _perform_analysis(df: pd.DataFrame) -> None:
-    """Replicate analysis steps from the original tool if columns are present."""
+def _perform_analysis(df: pd.DataFrame, show_plot: bool = False) -> None:
+    """Replicate analysis steps from the original tool if columns are present.
+
+    Parameters
+    ----------
+    df:
+        DataFrame containing the annotated dialogue data.
+    show_plot:
+        If ``True`` display the tone distribution plot instead of saving it
+        to ``tone_distribution.png`` under ``WORKDIR``.
+    """
     if df.empty:
         return
 
@@ -105,8 +114,11 @@ def _perform_analysis(df: pd.DataFrame) -> None:
         plt.xlabel("Tone")
         plt.ylabel("Number of Segments")
         plt.xticks(rotation=0)
-        fig_path = WORKDIR / "tone_distribution.png"
-        plt.savefig(fig_path)
+        if show_plot:
+            plt.show()
+        else:
+            fig_path = WORKDIR / "tone_distribution.png"
+            plt.savefig(fig_path)
         plt.close()
 
     req_cols = {
@@ -141,15 +153,40 @@ def _perform_analysis(df: pd.DataFrame) -> None:
         LinearRegression().fit(X_train, y_train["TopicExtension"])
 
 
-def prepare_data_structure(data_dir: Path = DATA_DIR, force: bool = False):
-    """Ensure the workspace contains the CSVs required by the notebooks."""
+def prepare_data_structure(
+    data_dir: Path = DATA_DIR,
+    force: bool = False,
+    show_plot: bool = False,
+):
+    """Ensure the workspace contains the CSVs required by the notebooks.
+
+    Parameters
+    ----------
+    data_dir:
+        Directory containing uploaded Excel/CSV files.
+    force:
+        Recreate the CSVs even if they already exist.
+    show_plot:
+        Forwarded to :func:`_perform_analysis` to display the plot instead
+        of saving it.
+    """
     if not force and all(p.exists() for p in ANNOTATIONS) and SAMPLE_DIR.exists():
         return
     _convert_excel_to_csv(data_dir)
     _populate_sample_dir(data_dir)
     df = _load_converted_csv()
-    _perform_analysis(df)
+    _perform_analysis(df, show_plot=show_plot)
 
 
 if __name__ == "__main__":
-    prepare_data_structure()
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Convert SLDEA data and perform analysis")
+    parser.add_argument(
+        "--show-plot",
+        action="store_true",
+        help="Display the tone distribution plot instead of saving it",
+    )
+    args = parser.parse_args()
+
+    prepare_data_structure(show_plot=args.show_plot)

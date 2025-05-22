@@ -34,6 +34,12 @@ Both `app.py` and `prepare_data.py` write their intermediate results and the gen
 ```bash
 python prepare_data.py
 ```
+To display the tone distribution plot interactively instead of saving it,
+pass ``--show-plot`` when calling the module:
+
+```bash
+python prepare_data.py --show-plot
+```
 
 Running the command again is useful if you add more Excel files later or want to regenerate the CSVs in a different location by setting `SLDEA_WORKDIR`.
 
