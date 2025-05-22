@@ -19,7 +19,9 @@ SLEDA is a three-level framework for evaluating English Second Language (ESL) co
 - `feature_label.csv` – features extracted from the annotated datasets.
 - `2024ACLESLMainCodes_Results/` – sample results from the accompanying paper.
 - `dialogue_pred.ipynb` and `ESL_AddedExperinments.ipynb` – main notebooks for preprocessing, training and evaluation.
-- `Dockerfile`, `requirements.txt` and `app.py` – files used when deploying to HuggingFace Spaces.
+- `prepare_data.py` – script that converts the Excel files under `SLDEA Data/` to the
+  CSV structure expected by the notebooks.
+  It is executed automatically when starting the app.
 
 ## Dataset
 
@@ -27,7 +29,9 @@ Only a small sample of the full SLDEA dataset is provided here. For complete acc
 
 ## Running the notebooks
 
-The notebooks in `src/` contain the preprocessing steps and experiments described in the paper. You can run them directly in Jupyter or execute them from the command line with [Papermill](https://papermill.readthedocs.io/):
+The notebooks in `src/` contain the preprocessing steps and experiments described in the paper. They require CSV files named `annotations(1).csv` to `annotations(5).csv` and a folder `data_csv_sample/`. The helper script `prepare_data.py` generates these files from the Excel sheets under `SLDEA Data/` if they are missing.
+
+You can run the notebooks directly in Jupyter or execute them from the command line with [Papermill](https://papermill.readthedocs.io/):
 
 ```bash
 papermill dialogue_pred.ipynb dialogue_pred_out.ipynb
