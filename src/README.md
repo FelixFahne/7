@@ -37,11 +37,12 @@ This exposes a Gradio interface on http://localhost:7860.
 
 ## Deploying to HuggingFace Spaces
 
-Create a new **Docker** Space on HuggingFace and link it to this repository. The Space builder uses the repository root `Dockerfile` to install the dependencies, convert the notebooks to scripts and start `app.py`. Once built, the web interface offers three tabs:
+Create a new **Docker** Space on HuggingFace and link it to this repository. The Space builder uses the repository root `Dockerfile` to install the dependencies, convert the notebooks to scripts and start `app.py`. Once built, the web interface offers three tabs and an optional **Extra Experiments** tab:
 
-1. **Pre-processing** – run `dialogue_pred.ipynb` on an uploaded CSV file.
-2. **Training** – execute `ESL_AddedExperinments.ipynb`.
+1. **Pre-processing** – run `preprocessing.py` (or `notebooks/a.ipynb`) on an uploaded CSV file.
+2. **Training** – execute `dialogue_pred.ipynb`.
 3. **Application** – apply a trained model to new data via `dialogue_pred.py`.
+4. **Extra Experiments** *(optional)* – explore additional analysis in `ESL_AddedExperinments.ipynb`.
 
 The container exposes port `7860`, which Spaces automatically forwards.
 
