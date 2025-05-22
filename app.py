@@ -16,7 +16,7 @@ TMP.mkdir(parents=True, exist_ok=True)
 
 # ---------- Hilfsfunktionen ----------
 def _run_notebook(ipynb_path, out_dir, cwd=None):
-    """Führt ein Notebook headless aus und legt Ergebnis-CSV in out_dir ab."""
+    """Execute a notebook headless and store the resulting ``.ipynb`` in ``out_dir``."""
     out_dir = pathlib.Path(out_dir)
     out_dir.mkdir(exist_ok=True)
     output_name = out_dir / f"{uuid.uuid4()}.ipynb"
@@ -38,8 +38,13 @@ def preprocess(upload_files):
 
     prepare_data_structure(uploads_dir, force=True)
     ipynb = SRC / "dialogue_pred.ipynb"  # anpassen, falls dein Notebook anders heißt
-    result = _run_notebook(ipynb, TMP, cwd=TMP)
-    return gr.File(str(result))
+    _run_notebook(ipynb, TMP, cwd=TMP)
+
+    # ``dialogue_pred.ipynb`` creates ``feature_label.csv`` in the working
+    # directory. Return this freshly generated file instead of the executed
+    # notebook so users immediately get the processed data.
+    csv_path = TMP / "feature_label.csv"
+    return gr.File(str(csv_path))
 
 
 def train(train_files):
@@ -92,7 +97,7 @@ with gr.Blocks() as demo:
     with gr.Tab("Pre-processing"):
         in_files = gr.Files(label="Excel/CSV hochladen")
         btn = gr.Button("Start")
-        out_file = gr.File(label="Ergebnis-Notebook")
+        out_file = gr.File(label="Ergebnis-CSV")
         btn.click(preprocess, in_files, out_file)
 
     with gr.Tab("Training"):
