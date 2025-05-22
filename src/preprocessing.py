@@ -38,6 +38,16 @@ for excel_path, csv_path in zip(excel_files, csv_files):
 
 print("All files have been converted to CSV format.")
 
+# Combine all converted CSVs for further processing
+df = pd.concat(pd.read_csv(p) for p in csv_files)
+
+# Summarize label counts per dialogue segment (or similar unit)
+summary_label_counts_by_segment = (
+    df.groupby("dialogue_segment").sum(numeric_only=True)
+    if "dialogue_segment" in df.columns
+    else pd.DataFrame()
+)
+
 
 def assign_tone(row):
     if row['backchannels'] > 0 or row['code-switching for communicative purposes'] > 0 or row['collaborative finishes'] > 0:

@@ -5,26 +5,33 @@ TMP = pathlib.Path("/tmp/space")         # temporäre Arbeits­verzeichnisse
 TMP.mkdir(parents=True, exist_ok=True)
 
 # ---------- Hilfsfunktionen ----------
-def _run_notebook(ipynb_path, out_dir):
-    """Führt ein Notebook headless aus und legt Ergebnis-CSV in out_dir ab."""
+def _run_notebook(ipynb_path, out_dir, input_csv=None):
+    """Führt ein Notebook headless aus und legt Ergebnis-CSV in out_dir ab.
+
+    Wenn ``input_csv`` angegeben ist, wird der Pfad als Parameter ``input_csv``
+    an ``papermill`` durchgereicht, sodass das Notebook die hochgeladene Datei
+    nutzen kann.
+    """
     out_dir = pathlib.Path(out_dir)
     out_dir.mkdir(exist_ok=True)
-    # Name ohne Endung für Output
     output_name = out_dir / f"{uuid.uuid4()}.ipynb"
-    subprocess.check_call(
-        ["papermill", str(ipynb_path), str(output_name)],
-    )
+
+    cmd = ["papermill", str(ipynb_path), str(output_name)]
+    if input_csv:
+        cmd += ["-p", "input_csv", str(input_csv)]
+
+    subprocess.check_call(cmd)
     return output_name
 
 # ---------- Gradio Callbacks ----------
 def preprocess(csv_file):
     ipynb = SRC / "dialogue_pred.ipynb"   # anpassen, falls dein Notebook anders heißt
-    result = _run_notebook(ipynb, TMP)
+    result = _run_notebook(ipynb, TMP, csv_file.name if csv_file else None)
     return gr.File(result)
 
 def train(processed_csv):
     ipynb = SRC / "ESL_AddedExperinments.ipynb"
-    result = _run_notebook(ipynb, TMP)
+    result = _run_notebook(ipynb, TMP, processed_csv.name if processed_csv else None)
     return gr.File(result)
 
 def infer(model_pkl, test_csv):
@@ -65,5 +72,3 @@ if __name__ == "__main__":
         server_port=int(os.getenv("PORT", 7860)),
         show_error=True                         # optional: Exceptions im UI anzeigen
     )
-
-demo.launch()
