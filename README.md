@@ -27,6 +27,16 @@ SLEDA is a three-level framework for evaluating English Second Language (ESL) co
 
 Only a small sample of the full SLDEA dataset is provided here. For complete access contact `rena.gao@unimelb.edu.au`. Place the files under `src/SLDEA Data/` so that the notebooks can locate them.
 
+## Working directory
+
+Both `app.py` and `prepare_data.py` write their intermediate results and the generated annotation CSV files to a directory controlled by the `SLDEA_WORKDIR` environment variable. If the variable is not set, `/tmp/space` is used by default. At least five Excel files must be present in `src/SLDEA Data/` so that `prepare_data.py` can produce the required `annotations(1).csv`–`annotations(5).csv` files. The script runs automatically when the application starts, but you can also invoke it manually:
+
+```bash
+python prepare_data.py
+```
+
+Running the command again is useful if you add more Excel files later or want to regenerate the CSVs in a different location by setting `SLDEA_WORKDIR`.
+
 ## Running the notebooks
 
 The notebooks in `src/` contain the preprocessing steps and experiments described in the paper. They require CSV files named `annotations(1).csv` to `annotations(5).csv` and a folder `data_csv_sample/`. The helper script `prepare_data.py` generates these files from the Excel sheets under `SLDEA Data/` if they are missing.
