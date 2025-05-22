@@ -23,16 +23,37 @@ ANNOTATIONS = [WORKDIR / f"annotations({i}).csv" for i in range(1, 6)]
 SAMPLE_DIR = WORKDIR / "data_csv_sample"
 
 
+COLS = ["id", "label", "labellevel", "span"]
+
+
+def _normalize_columns(df: pd.DataFrame) -> pd.DataFrame:
+    """Return ``df`` restricted to the four required columns."""
+    lower_map = {c.lower(): c for c in df.columns}
+    if all(c in lower_map for c in COLS):
+        df = df[[lower_map[c] for c in COLS]]
+        df.columns = COLS
+        return df
+    df = df.iloc[:, : len(COLS)]
+    df.columns = COLS[: df.shape[1]]
+    for c in COLS:
+        if c not in df.columns:
+            df[c] = None
+    return df[COLS]
+
+
 def _convert_excel_to_csv(data_dir: Path):
     """Convert uploaded Excel/CSV files to the 5 ``annotations`` CSV files."""
     WORKDIR.mkdir(parents=True, exist_ok=True)
     xlsx_files = sorted(data_dir.glob("*.xlsx"))
     csv_files = sorted(data_dir.glob("*.csv"))
     frames = []
+
     for p in xlsx_files:
-        frames.append(pd.read_excel(p))
+        df = pd.read_excel(p)
+        frames.append(_normalize_columns(df))
     for p in csv_files:
-        frames.append(pd.read_csv(p))
+        df = pd.read_csv(p)
+        frames.append(_normalize_columns(df))
     if not frames:
         raise FileNotFoundError(f"No .xlsx or .csv files found in {data_dir}")
 
@@ -51,9 +72,12 @@ def _populate_sample_dir(data_dir: Path):
     """Copy CSV files (or converted XLSX files) into ``data_csv_sample``."""
     SAMPLE_DIR.mkdir(parents=True, exist_ok=True)
     for csv in data_dir.glob("*.csv"):
-        shutil.copy(csv, SAMPLE_DIR / csv.name)
+        df = pd.read_csv(csv)
+        df = _normalize_columns(df)
+        (SAMPLE_DIR / csv.name).write_text(df.to_csv(index=False))
     for xlsx in data_dir.glob("*.xlsx"):
         df = pd.read_excel(xlsx)
+        df = _normalize_columns(df)
         (SAMPLE_DIR / f"{xlsx.stem}.csv").write_text(df.to_csv(index=False))
 
 
