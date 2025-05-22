@@ -1,45 +1,24 @@
 import pandas as pd
 from sklearn.metrics import confusion_matrix
 import seaborn as sns
-import matplotlib.pyplot as plt 
+import matplotlib.pyplot as plt
 from sklearn.metrics import roc_curve, auc
 from sklearn.metrics import precision_recall_curve
 from sklearn.metrics import average_precision_score
 
-# Define your Excel file paths relative to this script so that the
-# code can run regardless of the working directory. The files are
-# expected to be placed in the same directory as this script or in a
-# subdirectory named ``data``.
+import os
 from pathlib import Path
 
-BASE_DIR = Path(__file__).resolve().parent
-DATA_DIR = BASE_DIR / "data"
+WORKDIR = Path(os.getenv("SLDEA_WORKDIR", "/tmp/space"))
 
-excel_files = [
-    DATA_DIR / "annotations(1).xlsx",
-    DATA_DIR / "annotations(2).xlsx",
-    DATA_DIR / "annotations.xlsx",
-]
+# Annotation CSV files are expected to reside in ``WORKDIR``
+csv_files = [WORKDIR / f"annotations({i}).csv" for i in range(1, 6)]
 
-# Define corresponding CSV file paths
-csv_files = [
-    DATA_DIR / "annotations(1).csv",
-    DATA_DIR / "annotations(2).csv",
-    DATA_DIR / "annotations.csv",
-]
-
-# Loop through each Excel file, read it, and save it as a CSV file
-for excel_path, csv_path in zip(excel_files, csv_files):
-    # Read the Excel file
-    df = pd.read_excel(excel_path)
-    
-    # Save the DataFrame to a CSV file
-    df.to_csv(csv_path, index=False)  # Set index=False to avoid saving the DataFrame index as a separate column
-
-print("All files have been converted to CSV format.")
-
-# Combine all converted CSVs for further processing
-df = pd.concat(pd.read_csv(p) for p in csv_files)
+# Read all available annotation CSVs
+frames = [pd.read_csv(p) for p in csv_files if p.exists()]
+if not frames:
+    raise FileNotFoundError(f"No annotation CSVs found in {WORKDIR}")
+df = pd.concat(frames, ignore_index=True)
 
 # Summarize label counts per dialogue segment (or similar unit)
 summary_label_counts_by_segment = (
@@ -119,6 +98,9 @@ model_topic = LinearRegression().fit(X_train, y_train['TopicExtension'])
 # (Evaluation steps would go here)
 
 
+
+
+
 # Assuming `df` is a DataFrame with dialogue identifiers and the constructed dialogue-level labels
 
 # Feature Engineering: Summarize token-level labels into dialogue-level features
@@ -159,3 +141,5 @@ model_topic = LinearRegression().fit(X_train, y_train['TopicExtension'])
 
 # Predict and evaluate 'Topic Extension'
 
+# Persist the merged annotations so other scripts can access them
+df.to_csv(WORKDIR / "feature_label.csv", index=False)
