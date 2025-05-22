@@ -115,7 +115,7 @@ with gr.Blocks() as demo:
     with gr.Tab("Training"):
         train_files = gr.Files(label="Trainingsdaten (Excel/CSV)")
         btn2 = gr.Button("Trainieren")
-        model_out = gr.File(label="Trainings-Notebook")
+        model_out = gr.File(label="Model File")
         btn2.click(train, train_files, model_out)
 
     with gr.Tab("Application"):
