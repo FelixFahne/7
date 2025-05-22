@@ -1,8 +1,10 @@
 import gradio as gr, subprocess, pathlib, shutil, uuid, os
+from prepare_data import prepare_data_structure
 
 SRC = pathlib.Path(__file__).parent / "src"
-TMP = pathlib.Path("/tmp/space")         # temporäre Arbeits­verzeichnisse
+TMP = pathlib.Path("/tmp/space")  # temporäre Arbeits­verzeichnisse
 TMP.mkdir(parents=True, exist_ok=True)
+
 
 # ---------- Hilfsfunktionen ----------
 def _run_notebook(ipynb_path, out_dir, input_csv=None):
@@ -23,27 +25,39 @@ def _run_notebook(ipynb_path, out_dir, input_csv=None):
     subprocess.check_call(cmd)
     return output_name
 
+
 # ---------- Gradio Callbacks ----------
 def preprocess(csv_file):
-    ipynb = SRC / "dialogue_pred.ipynb"   # anpassen, falls dein Notebook anders heißt
+    prepare_data_structure()
+    ipynb = SRC / "dialogue_pred.ipynb"  # anpassen, falls dein Notebook anders heißt
     result = _run_notebook(ipynb, TMP, csv_file.name if csv_file else None)
     return gr.File(result)
 
+
 def train(processed_csv):
+    prepare_data_structure()
     ipynb = SRC / "ESL_AddedExperinments.ipynb"
     result = _run_notebook(ipynb, TMP, processed_csv.name if processed_csv else None)
     return gr.File(result)
+
 
 def infer(model_pkl, test_csv):
     # Beispiel: führe ein Python-Script aus dem Originalrepo aus
     output_csv = TMP / f"preds_{uuid.uuid4()}.csv"
     subprocess.check_call(
-        ["python", SRC / "dialogue_pred.py",
-         "--model", model_pkl.name,
-         "--test", test_csv.name,
-         "--out", output_csv],
+        [
+            "python",
+            SRC / "dialogue_pred.py",
+            "--model",
+            model_pkl.name,
+            "--test",
+            test_csv.name,
+            "--out",
+            output_csv,
+        ],
     )
     return gr.File(output_csv)
+
 
 # ---------- GUI ----------
 with gr.Blocks() as demo:
@@ -68,7 +82,7 @@ with gr.Blocks() as demo:
 # ---------- Start ----------
 if __name__ == "__main__":
     demo.launch(
-        server_name="0.0.0.0",                  # ← Space-Health-Check erreicht die App
+        server_name="0.0.0.0",  # ← Space-Health-Check erreicht die App
         server_port=int(os.getenv("PORT", 7860)),
-        show_error=True                         # optional: Exceptions im UI anzeigen
+        show_error=True,  # optional: Exceptions im UI anzeigen
     )
