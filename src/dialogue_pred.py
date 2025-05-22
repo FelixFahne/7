@@ -4,13 +4,16 @@
 # In[12]:
 
 
-import pandas as pd 
+import argparse
+import pathlib
+import pandas as pd
 import numpy as np
 import sklearn
 from sklearn import metrics,model_selection,linear_model
-import seaborn as sns 
+import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.ensemble import RandomForestClassifier,RandomForestRegressor
+from joblib import load as joblib_load
 
 
 # In[13]:
@@ -361,5 +364,26 @@ result_dict_df.to_csv('./Task-3-result_df.csv',encoding='utf_8_sig')
 # In[ ]:
 
 
+def main():
+    parser = argparse.ArgumentParser(description="Generate predictions using a trained model")
+    parser.add_argument("--model", required=True, help="Path to joblib model file")
+    parser.add_argument("--test", required=True, help="CSV or XLSX file with test data")
+    parser.add_argument("--out", required=True, help="Destination CSV for predictions")
 
+    args = parser.parse_args()
+
+    model = joblib_load(args.model)
+
+    test_path = pathlib.Path(args.test)
+    if test_path.suffix.lower() == ".xlsx":
+        df = pd.read_excel(test_path)
+    else:
+        df = pd.read_csv(test_path)
+
+    preds = model.predict(df)
+    pd.DataFrame({"prediction": preds}).to_csv(args.out, index=False)
+
+
+if __name__ == "__main__":
+    main()
 
