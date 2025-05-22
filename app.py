@@ -38,12 +38,18 @@ def preprocess(upload_files):
 
     prepare_data_structure(uploads_dir, force=True)
     ipynb = SRC / "dialogue_pred.ipynb"  # anpassen, falls dein Notebook anders heißt
-    _run_notebook(ipynb, TMP, cwd=TMP)
 
-    # ``dialogue_pred.ipynb`` creates ``feature_label.csv`` in the working
-    # directory. Return this freshly generated file instead of the executed
-    # notebook so users immediately get the processed data.
+    _run_notebook(ipynb, TMP, cwd=TMP)
+    # ``dialogue_pred.ipynb`` writes ``feature_label.csv`` next to the notebook
+    # itself. In some environments this path may be read-only so we copy the file
+    # into our temporary workspace before returning it.
     csv_path = TMP / "feature_label.csv"
+    if not csv_path.exists():
+        src_csv = SRC / "feature_label.csv"
+        if src_csv.exists():
+            shutil.copy(src_csv, csv_path)
+        else:
+            raise FileNotFoundError(f"{csv_path} nor {src_csv} exist")
     return gr.File(str(csv_path))
 
 
