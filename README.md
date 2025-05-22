@@ -25,11 +25,11 @@ SLEDA is a three-level framework for evaluating English Second Language (ESL) co
 
 ## Dataset
 
-Only a small sample of the full SLDEA dataset is provided here. For complete access contact `rena.gao@unimelb.edu.au`. Place the files under `src/SLDEA Data/` so that the notebooks can locate them.
+Only a small sample of the full SLDEA dataset is provided here. For complete access contact `rena.gao@unimelb.edu.au`. Place the files under `src/SLDEA Data/` so that the notebooks can locate them or upload your own Excel/CSV files in the web interface.
 
 ## Working directory
 
-Both `app.py` and `prepare_data.py` write their intermediate results and the generated annotation CSV files to a directory controlled by the `SLDEA_WORKDIR` environment variable. If the variable is not set, `/tmp/space` is used by default. At least five Excel files must be present in `src/SLDEA Data/` so that `prepare_data.py` can produce the required `annotations(1).csv`–`annotations(5).csv` files. The script runs automatically when the application starts, but you can also invoke it manually:
+Both `app.py` and `prepare_data.py` write their intermediate results and the generated annotation CSV files to a directory controlled by the `SLDEA_WORKDIR` environment variable. If the variable is not set, `/tmp/space` is used by default. When running the web interface you may upload any number of Excel/CSV files which are placed in this directory automatically. If you run `prepare_data.py` manually, make sure at least five Excel files reside in `src/SLDEA Data/` so that the helper can build `annotations(1).csv`–`annotations(5).csv`.
 
 ```bash
 python prepare_data.py
@@ -64,8 +64,8 @@ This exposes a Gradio interface on http://localhost:7860.
 
 Create a new **Docker** Space on HuggingFace and link it to this repository. The Space builder uses `Dockerfile` in the repository root to install the dependencies, convert the notebooks to scripts and start `app.py`. Once built, the web interface offers three tabs:
 
-1. **Pre-processing** – execute `dialogue_pred.ipynb` on the prepared sample
-   CSV data. The upload field is ignored.
+1. **Pre-processing** – upload one or more Excel/CSV files and execute
+   `dialogue_pred.ipynb` on the converted data.
 2. **Training** – execute `ESL_AddedExperinments.ipynb`.
 3. **Application** – apply a trained model to new data via `dialogue_pred.py`.
 

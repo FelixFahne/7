@@ -28,8 +28,15 @@ def _run_notebook(ipynb_path, out_dir, cwd=None):
 
 
 # ---------- Gradio Callbacks ----------
-def preprocess(csv_file):
-    prepare_data_structure()
+def preprocess(upload_files):
+    uploads_dir = TMP / "uploads"
+    if uploads_dir.exists():
+        shutil.rmtree(uploads_dir)
+    uploads_dir.mkdir(parents=True)
+    for f in upload_files:
+        shutil.copy(f.name, uploads_dir / pathlib.Path(f.name).name)
+
+    prepare_data_structure(uploads_dir, force=True)
     ipynb = SRC / "dialogue_pred.ipynb"  # anpassen, falls dein Notebook anders heißt
     result = _run_notebook(ipynb, TMP, cwd=TMP)
     return gr.File(result)
@@ -64,10 +71,10 @@ def infer(model_pkl, test_csv):
 # ---------- GUI ----------
 with gr.Blocks() as demo:
     with gr.Tab("Pre-processing"):
-        in_file = gr.File(label="Roh-CSV hochladen")
+        in_files = gr.Files(label="Excel/CSV hochladen")
         btn = gr.Button("Start")
         out_file = gr.File(label="Ergebnis-Notebook")
-        btn.click(preprocess, in_file, out_file)
+        btn.click(preprocess, in_files, out_file)
 
     with gr.Tab("Training"):
         proc = gr.File(label="Vorverarbeitete CSV")
