@@ -6,11 +6,19 @@ import pandas as pd
 SRC = Path(__file__).parent / "src"
 DATA_DIR = SRC / "SLDEA Data"
 
-ANNOTATIONS = [SRC / f"annotations({i}).csv" for i in range(1, 6)]
-SAMPLE_DIR = SRC / "data_csv_sample"
+# Directory used for generated CSV files. On platforms where the repository
+# itself is read-only (e.g. HuggingFace Spaces), we fall back to a writable
+# location under ``/tmp``. The path can be overridden via the ``SLDEA_WORKDIR``
+# environment variable so that the notebooks and scripts can locate their
+# input/output in a consistent place.
+WORKDIR = Path(os.getenv("SLDEA_WORKDIR", "/tmp/space"))
+
+ANNOTATIONS = [WORKDIR / f"annotations({i}).csv" for i in range(1, 6)]
+SAMPLE_DIR = WORKDIR / "data_csv_sample"
 
 
 def _convert_excel_to_csv():
+    WORKDIR.mkdir(parents=True, exist_ok=True)
     xlsx_files = sorted(DATA_DIR.glob("*.xlsx"))
     if not xlsx_files:
         raise FileNotFoundError(f"No .xlsx files found in {DATA_DIR}")
@@ -27,7 +35,7 @@ def _convert_excel_to_csv():
 
 
 def _populate_sample_dir():
-    SAMPLE_DIR.mkdir(exist_ok=True)
+    SAMPLE_DIR.mkdir(parents=True, exist_ok=True)
     for csv in DATA_DIR.glob("*.csv"):
         shutil.copy(csv, SAMPLE_DIR / csv.name)
 
