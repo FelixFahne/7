@@ -15,20 +15,13 @@ TMP.mkdir(parents=True, exist_ok=True)
 
 
 # ---------- Hilfsfunktionen ----------
-def _run_notebook(ipynb_path, out_dir, input_csv=None, cwd=None):
-    """Führt ein Notebook headless aus und legt Ergebnis-CSV in out_dir ab.
-
-    Wenn ``input_csv`` angegeben ist, wird der Pfad als Parameter ``input_csv``
-    an ``papermill`` durchgereicht, sodass das Notebook die hochgeladene Datei
-    nutzen kann.
-    """
+def _run_notebook(ipynb_path, out_dir, cwd=None):
+    """Führt ein Notebook headless aus und legt Ergebnis-CSV in out_dir ab."""
     out_dir = pathlib.Path(out_dir)
     out_dir.mkdir(exist_ok=True)
     output_name = out_dir / f"{uuid.uuid4()}.ipynb"
 
     cmd = ["papermill", str(ipynb_path), str(output_name)]
-    if input_csv:
-        cmd += ["-p", "input_csv", str(input_csv)]
 
     subprocess.check_call(cmd, cwd=cwd)
     return output_name
@@ -38,14 +31,14 @@ def _run_notebook(ipynb_path, out_dir, input_csv=None, cwd=None):
 def preprocess(csv_file):
     prepare_data_structure()
     ipynb = SRC / "dialogue_pred.ipynb"  # anpassen, falls dein Notebook anders heißt
-    result = _run_notebook(ipynb, TMP, csv_file.name if csv_file else None, cwd=TMP)
+    result = _run_notebook(ipynb, TMP, cwd=TMP)
     return gr.File(result)
 
 
 def train(processed_csv):
     prepare_data_structure()
     ipynb = SRC / "ESL_AddedExperinments.ipynb"
-    result = _run_notebook(ipynb, TMP, processed_csv.name if processed_csv else None, cwd=TMP)
+    result = _run_notebook(ipynb, TMP, cwd=TMP)
     return gr.File(result)
 
 
