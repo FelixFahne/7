@@ -27,6 +27,10 @@ def _run_notebook(ipynb_path, out_dir, cwd=None):
     return output_name
 
 
+def _run_script(py_path, cwd=None):
+    subprocess.check_call(["python", str(py_path)], cwd=cwd)
+
+
 # ---------- Gradio Callbacks ----------
 def preprocess(upload_files):
     uploads_dir = TMP / "uploads"
@@ -37,11 +41,13 @@ def preprocess(upload_files):
         shutil.copy(f.name, uploads_dir / pathlib.Path(f.name).name)
 
     prepare_data_structure(uploads_dir, force=True)
-    ipynb = SRC / "dialogue_pred.ipynb"  # anpassen, falls dein Notebook anders heißt
-
-    _run_notebook(ipynb, TMP, cwd=TMP)
-    # ``dialogue_pred.ipynb`` writes ``feature_label.csv`` next to the notebook
-    # itself. In some environments this path may be read-only so we copy the file
+    nb = pathlib.Path("notebooks/a.ipynb")
+    if nb.exists():
+        _run_notebook(nb, TMP, cwd=TMP)
+    else:
+        _run_script(SRC / "preprocessing.py", TMP)
+    # The preprocessing step produces ``feature_label.csv``. In some
+    # environments this path may be read-only so we copy the file
     # into our temporary workspace before returning it.
     csv_path = TMP / "feature_label.csv"
     if not csv_path.exists():
