@@ -39,7 +39,7 @@ def preprocess(upload_files):
     prepare_data_structure(uploads_dir, force=True)
     ipynb = SRC / "dialogue_pred.ipynb"  # anpassen, falls dein Notebook anders heißt
     result = _run_notebook(ipynb, TMP, cwd=TMP)
-    return gr.File(result)
+    return gr.File(str(result))
 
 
 def train(train_files):
@@ -53,7 +53,7 @@ def train(train_files):
     prepare_data_structure(uploads_dir, force=True)
     ipynb = SRC / "ESL_AddedExperinments.ipynb"
     result = _run_notebook(ipynb, TMP, cwd=TMP)
-    return gr.File(result)
+    return gr.File(str(result))
 
 
 def infer(model_pkl, test_files):
@@ -84,7 +84,7 @@ def infer(model_pkl, test_files):
         ],
         cwd=TMP,
     )
-    return gr.File(output_csv)
+    return gr.File(str(output_csv))
 
 
 # ---------- GUI ----------
