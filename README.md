@@ -13,6 +13,8 @@ pinned: false
 
 SLEDA is a three-level framework for evaluating English Second Language (ESL) conversation dialogues. This repository contains the original notebooks, supporting data and a small Docker setup for running the tool in a HuggingFace Space.
 
+This project rebuilds the scientific tool distributed in the folder `Original repo`. All scripts and notebooks in this repository aim to mirror the behaviour of those reference files as closely as possible while providing a convenient Docker/Spaces environment.
+
 ## Repository layout
 
 - `SLDEA Data/` – example ESL dialogues in XLSX format.
@@ -21,6 +23,7 @@ SLEDA is a three-level framework for evaluating English Second Language (ESL) co
 - `ESL_AddedExperinments.ipynb` – optional notebook for extra experiments.
 - `src/preprocessing.py` – converts uploaded Excel/CSV files to the CSV structure
   expected by the notebooks and produces `feature_label.csv`.
+- `Original repo/` – reference notebooks and scripts from the original tool.
 
 ## Dataset
 
