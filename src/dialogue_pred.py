@@ -16,6 +16,24 @@ from sklearn.ensemble import RandomForestClassifier,RandomForestRegressor
 from joblib import load as joblib_load
 
 
+def load_multiple_datasets(file_paths):
+    """Load and concatenate multiple CSV or Excel files."""
+    frames = []
+    for path in file_paths:
+        try:
+            if str(path).endswith('.csv'):
+                df = pd.read_csv(path)
+            elif str(path).endswith(('.xlsx', '.xls')):
+                df = pd.read_excel(path, engine='openpyxl')
+            else:
+                print(f"Unsupported file format: {path}")
+                continue
+            frames.append(df)
+        except Exception as exc:
+            print(f"Error loading {path}: {exc}")
+    return pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
+
+
 # In[13]:
 
 
@@ -61,15 +79,14 @@ def get_result_2(test_y,test_pred):
 # In[14]:
 
 
-#读取数据
-data_1=pd.read_csv('./annotations(1).csv')
-data_2=pd.read_csv('./annotations(2).csv')
-data_3=pd.read_csv('./annotations(3).csv')
-data_4=pd.read_csv('./annotations(4).csv')
-data_5=pd.read_csv('./annotations(5).csv')
-data=pd.concat([data_1, data_2, data_3, data_4, data_5], ignore_index=True)
-data['LabelLevel']=data['LabelLevel'].apply(transform)
-data.index=range(len(data))
+# 读取训练数据
+train_files = [f'./annotations({i}).csv' for i in range(1, 6)]
+existing = [p for p in train_files if pathlib.Path(p).exists()]
+data = load_multiple_datasets(existing)
+if data.empty:
+    raise FileNotFoundError('No training data found')
+data['LabelLevel'] = data['LabelLevel'].apply(transform)
+data.index = range(len(data))
 
 
 #统计频次

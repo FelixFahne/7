@@ -67,8 +67,8 @@ def train(train_files):
         shutil.copy(f.name, uploads_dir / pathlib.Path(f.name).name)
 
     prepare_data_structure(uploads_dir, force=True)
-    ipynb = SRC / "dialogue_pred.ipynb"
-    _run_notebook(ipynb, TMP, cwd=TMP)
+    # Run the training script directly which saves ``model.pkl`` in ``TMP``
+    _run_script(SRC / "dialogue_pred.py", cwd=TMP)
     model_file = TMP / "model.pkl"
     return gr.File(str(model_file))
 
