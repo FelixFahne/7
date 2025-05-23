@@ -1,6 +1,7 @@
 pandas
 numpy
 scikit-learn
+joblib
 torch          # falls in den Notebooks genutzt
 gradio>=4
 papermill      # führt Notebooks automatisch aus

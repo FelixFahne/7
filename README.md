@@ -18,7 +18,7 @@ SLEDA is a three-level framework for evaluating English Second Language (ESL) co
 - `SLDEA Data/` – example ESL dialogues in XLSX format.
 - `feature_label.csv` – features extracted from the annotated datasets.
 - `2024ACLESLMainCodes_Results/` – sample results from the accompanying paper.
-- `dialogue_pred.ipynb` and `ESL_AddedExperinments.ipynb` – main notebooks for preprocessing, training and evaluation.
+- `ESL_AddedExperinments.ipynb` – optional notebook for extra experiments.
 - `src/preprocessing.py` – converts uploaded Excel/CSV files to the CSV structure
   expected by the notebooks and produces `feature_label.csv`.
 
@@ -41,13 +41,13 @@ Running the command again is useful if you add more Excel files later or want to
 
 The notebooks in `src/` contain the preprocessing steps and experiments described in the paper. They require CSV files named `annotations(1).csv` to `annotations(5).csv` and a folder `data_csv_sample/`. The script `src/preprocessing.py` creates these files from the Excel sheets under `SLDEA Data/` if they are missing.
 
-You can run the notebooks directly in Jupyter or execute them from the command line with [Papermill](https://papermill.readthedocs.io/):
+You can execute `ESL_AddedExperinments.ipynb` from the command line with [Papermill](https://papermill.readthedocs.io/):
 
 ```bash
-papermill dialogue_pred.ipynb dialogue_pred_out.ipynb
+papermill ESL_AddedExperinments.ipynb out.ipynb
 ```
 
-The Python scripts `dialogue_pred.py` and `ESL_AddedExperinments.py` are exports of these notebooks and can be invoked directly once the required packages are installed.
+The Python scripts `dialogue_pred.py` and `ESL_AddedExperinments.py` implement the same functionality without requiring Jupyter.
 
 ## Command-line example
 
@@ -78,8 +78,8 @@ Create a new **Docker** Space on HuggingFace and link it to this repository. The
 
 1. **Pre-processing** – upload your Excel or CSV files and run `preprocessing.py`
    to convert them into the internal format and produce `feature_label.csv`.
-2. **Training** – upload `feature_label.csv` to `dialogue_pred.ipynb` to train
-   a model. The notebook saves the resulting `model.pkl`.
+2. **Training** – upload `feature_label.csv` and run `dialogue_pred.py` to train
+   a model. The script saves the resulting `model.pkl`.
 3. **Application** – upload `model.pkl` together with one or more test CSV/XLSX
    files. `dialogue_pred.py` generates predictions in `preds_<uuid>.csv`.
 4. **Extra Experiments** *(optional)* – upload an experiments CSV to run

@@ -7,7 +7,7 @@ SLEDA is a three-level framework for evaluating English Second Language (ESL) co
 - `SLDEA Data/` – example ESL dialogues in XLSX format.
 - `feature_label.csv` – features extracted from the annotated datasets.
 - `2024ACLESLMainCodes_Results/` – sample results from the accompanying paper.
-- `dialogue_pred.ipynb` and `ESL_AddedExperinments.ipynb` – main notebooks for preprocessing, training and evaluation.
+- `ESL_AddedExperinments.ipynb` – optional notebook for extra experiments.
 - `Dockerfile`, `requirements.txt` and `app.py` – files used when deploying to HuggingFace Spaces.
 
 ## Dataset
@@ -16,13 +16,13 @@ Only a small sample of the full SLDEA dataset is provided here. For complete acc
 
 ## Running the notebooks
 
-The notebooks in `src/` contain the preprocessing steps and experiments described in the paper. You can run them directly in Jupyter or execute them from the command line with [Papermill](https://papermill.readthedocs.io/):
+You can execute `ESL_AddedExperinments.ipynb` with [Papermill](https://papermill.readthedocs.io/):
 
 ```bash
-papermill dialogue_pred.ipynb dialogue_pred_out.ipynb
+papermill ESL_AddedExperinments.ipynb out.ipynb
 ```
 
-The Python scripts `dialogue_pred.py` and `ESL_AddedExperinments.py` are exports of these notebooks and can be invoked directly once the required packages are installed.
+The Python scripts `dialogue_pred.py` and `ESL_AddedExperinments.py` implement the same functionality without requiring Jupyter.
 
 ## Local Docker build
 
@@ -40,7 +40,7 @@ This exposes a Gradio interface on http://localhost:7860.
 Create a new **Docker** Space on HuggingFace and link it to this repository. The Space builder uses the repository root `Dockerfile` to install the dependencies, convert the notebooks to scripts and start `app.py`. Once built, the web interface offers three tabs and an optional **Extra Experiments** tab:
 
 1. **Pre-processing** – run `preprocessing.py` (or `notebooks/a.ipynb`) on an uploaded CSV file.
-2. **Training** – execute `dialogue_pred.ipynb`.
+2. **Training** – run `dialogue_pred.py` on `feature_label.csv` to train a model.
 3. **Application** – apply a trained model to new data via `dialogue_pred.py`.
 4. **Extra Experiments** *(optional)* – explore additional analysis in `ESL_AddedExperinments.ipynb`.
 
