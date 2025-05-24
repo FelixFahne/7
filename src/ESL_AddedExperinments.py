@@ -545,6 +545,36 @@ def get_t_test_result(
     return pd.DataFrame(t_test_result)
 
 
+def evaluate_classical_models(
+    train_x: pd.DataFrame,
+    train_y: pd.DataFrame,
+    test_x: pd.DataFrame,
+    test_y: pd.DataFrame,
+    models: Iterable[str],
+) -> Dict[str, Tuple[pd.DataFrame, pd.DataFrame]]:
+    """Utility running several classical models in a loop."""
+
+    results: Dict[str, Tuple[pd.DataFrame, pd.DataFrame]] = {}
+    for name in models:
+        res, test_true_pred, _, _ = get_all_result(
+            train_x, train_y, test_x, test_y, name
+        )
+        results[name] = tuple(test_true_pred)
+    return results
+
+
+def evaluate_feature_subset(
+    train_x_normal: pd.DataFrame,
+    test_x_normal: pd.DataFrame,
+    subset: Iterable[str],
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """Return features restricted to ``subset`` columns."""
+
+    train_new = train_x_normal[list(subset)]
+    test_new = test_x_normal[list(subset)]
+    return train_new, test_new
+
+
 # ---------------------------------------------------------------------------
 # convenience routine
 # ---------------------------------------------------------------------------
